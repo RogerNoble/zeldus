@@ -1,0 +1,31 @@
+{
+  "name": "Zeldus",
+  "version": "0.0.1",
+  "description": "JavaScript column store database",
+  "main": "src/zeldus.js",
+  "moduleType": [
+    "amd"
+  ],
+  "keywords": [
+    "zeldus"
+  ],
+  "authors": [
+    "Roger Noble"
+  ],
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "requirejs": "~2.1.11"
+  },
+  "devDependencies": {
+    "chai": "~1.9.1"
+  }
+}
