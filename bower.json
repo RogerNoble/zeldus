@@ -21,7 +21,7 @@
     "bower_components",
     "test",
     "data",
-    "karma_html",
+    "karma_html"
   ],
   "dependencies": {
     "requirejs": "~2.1.11"
