@@ -1,72 +1,117 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Zeldus by RogerNoble</title>
+	<head>
+	    <title>Zeldus</title>
+	    <!-- Bootstrap Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<!-- Zeldus -->
+		<script type="text/javascript" src="javascripts/zeldus.min.js"></script>
+		<script type="text/javascript" src="javascripts/dsloader.js"></script>
+		<style type="text/css">
+			textarea { width: 100%; height: 200px; }
+			.marginTop { margin-top: 20px; }
+			.centre { text-align: center; }
+		</style>
+	</head>
+	<body>
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3">
+				<h1>Zeldus</h1>
+				<h4><em>A client side column oriented DBMS</em></h4>
+				<div>Loading <span class="glyphicon glyphicon-refresh"></span></div>
+				Enter a query
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-2 col-md-offset-1">
+				<h4>Example queries</h4>
+				<pre>select shipdate </br>from lineitem</pre>
+				<pre>select shipdate, linenumber </br>from lineitem</pre>
+				<pre>select shipdate </br>from lineitem </br>where shipdate > 19940101</pre>
+				<pre>select linenumber </br>from lineitem </br>where shipdate > 19940101</pre>
+				<pre>select linenumber, shipmode </br>from lineitem </br>where supplierkey = 777 </br>and shipdate > 19940101</pre>
+				<em>...and many more!</em>
+				<h4>Table: lineitem</h4>
+				<ul>
+					<li>orderkey (int)</li>
+					<li>partkey (int)</li>
+					<li>supplierkey (int)</li>
+					<li>linenumber (int)</li>
+					<li>quantity (decimal)</li>
+					<li>extendedprice (decimal)</li>
+					<li>discount (decimal)</li>
+					<li>tax (decimal)</li>
+					<li>returnflag (string)</li>
+					<li>linestatus (string)</li>
+					<li>shipdate (int)</li>
+					<li>commitdate (int)</li>
+					<li>receiptdate (int)</li>
+					<li>shipinstruct (string)</li>
+					<li>shipmode (string)</li>
+					<li>comment (string)</li>
+				</ul>
+			</div>
+			<div class="col-md-6">
+				<textarea id="sqlquery">
+select shipdate from lineitem
+				</textarea>
+				<button type="submit" class="btn btn-danger" onclick="execute()">Execute</button>
+				<div id="queryResultsMetadata" class="marginTop"></div>
+				<div id="queryResults" class="marginTop"></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3 centre">
+				Zeldus Copyright &copy; 2014, Roger Noble All Rights Reserved.
+			</div>
+		</div>
+		<script type="text/javascript">
+			var queryResults = document.getElementById('queryResults'),
+				queryResultsMetadata = document.getElementById('queryResultsMetadata');
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <h1>Zeldus</h1>
-        <p>A JavaScript column oriented database</p>
+			//~~ Zeldus ~~
+			var zeldus = null;
+			require(['zeldus'], function(Zeldus) {
+			    zeldus = new Zeldus({
+			    	dataSource: [ new DSLoader('lineitem', 'data/lineitem.json') ]
+			    });
+			    zeldus.createProjection('p1_shipdate_suppkey', '(L_SHIPDATE, L_SUPPKEY, L_SHIPMODE, L_EXTENDEDPRICE | L_SHIPDATE, L_SUPPKEY)');
+			});
 
-        <p class="view"><a href="https://github.com/RogerNoble/zeldus">View the Project on GitHub <small>RogerNoble/zeldus</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/RogerNoble/zeldus/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/RogerNoble/zeldus/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/RogerNoble/zeldus">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>
-<a name="zeldus" class="anchor" href="#zeldus"><span class="octicon octicon-link"></span></a>Zeldus</h1>
-
-<p>A client side column oriented DBMS.</p>
-
-<h2>
-<a name="introduction" class="anchor" href="#introduction"><span class="octicon octicon-link"></span></a>Introduction</h2>
-
-<p>Zeldus is a browser based database management system that once loaded can be queried with regular SQL syntax.</p>
-
-<h2>
-<a name="demo" class="anchor" href="#demo"><span class="octicon octicon-link"></span></a>Demo</h2>
-
-<h2>
-<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h2>
-
-<h2>
-<a name="reference" class="anchor" href="#reference"><span class="octicon octicon-link"></span></a>Reference</h2>
-
-<p>Zeldus is heavily based on the c-store architecture as proposed in the following papers.</p>
-
-<ul>
-<li>
-<strong><a href="http://db.csail.mit.edu/projects/cstore/vldb.pdf">C-Store: A Column-oriented DBMS</a></strong>
-Mike Stonebraker, Daniel Abadi, Adam Batkin, Xuedong Chen, Mitch Cherniack, Miguel Ferreira, Edmond Lau, Amerson Lin, Sam Madden, Elizabeth O'Neil, Pat O'Neil, Alex Rasin, Nga Tran and Stan Zdonik. VLDB, pages 553-564, 2005</li>
-<li>
-<strong><a href="http://db.csail.mit.edu/projects/cstore/abadisigmod06.pdf">Integrating Compression and Execution in Column-Oriented Database Systems</a></strong>
-Daniel J. Abadi, Samuel R. Madden, and Miguel C. Ferreira. Proceedings of SIGMOD, June, 2006, Chicago, USA.</li>
-<li>
-<strong><a href="http://paperhub.s3.amazonaws.com/14d147739ca381a610b8eea771ab0c84.pdf">query execution in column oriented databases</a></strong>
-Abadi, Daniel J. Massachusetts Institute of Technology, 2008</li>
-</ul>
-      </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/RogerNoble">RogerNoble</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
+			function execute(){
+				if(zeldus != null){
+					var sqlquery = document.getElementById('sqlquery');
+					if(sqlquery.value != null && sqlquery.value.length > 0){
+						//start timer
+						var queryStart = new Date();
+						zeldus.execute(sqlquery.value, function(results){
+							var queryEnd = new Date();
+							var resultsTable = '';
+							var limit = results.length < 100 ? results.length : 100;
+							for(var i = 0; i < limit; i++){
+								//table header
+								if(i == 0){
+									resultsTable += '<tr>';
+									for(var c in results[i]){
+										resultsTable += '<th>' + c + '</th>';
+									}
+									resultsTable += '</tr>';
+								}
+								//contents
+								resultsTable += '<tr>';
+								for(var c in results[i]){
+									resultsTable += '<td>' + results[i][c] + '</td>';
+								}
+								resultsTable += '</tr>';
+							}
+							queryResultsMetadata.innerHTML = 'Execution: ' + results.length + ' records in ' + ((queryEnd - queryStart) / 1000) + ' seconds'
+							queryResults.innerHTML = '<table class="table">' + resultsTable + '</table>';
+						});
+					}else{
+						//log
+					}
+				}
+			}
+		</script>		
+	</body>
 </html>
