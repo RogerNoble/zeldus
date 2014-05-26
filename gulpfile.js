@@ -11,6 +11,14 @@ gulp.task('lint', function() {
     .pipe(jshint.reporter('fail'));
 });
 
+// Build
+gulp.task('build-dev', function(callback) {
+  cp.exec('r.js.cmd -o build.dev.js', callback);
+});
+gulp.task('build-prod', function(callback) {
+  cp.exec('r.js.cmd -o build.prod.js', callback);
+});
+
 // doxx documentation
 gulp.task('documentation', function(callback){
 	cp.exec('doxx --title "Zeldus" --ignore lib --source src --target docs', callback);
@@ -18,4 +26,4 @@ gulp.task('documentation', function(callback){
 
 gulp.task('test', ['lint']);
 gulp.task('docs', ['documentation']);
-gulp.task('default', ['test']);
+gulp.task('default', ['build-dev', 'build-prod']);

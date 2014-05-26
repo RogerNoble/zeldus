@@ -1,8 +1,8 @@
 {
   "name": "Zeldus",
-  "version": "0.0.1",
-  "description": "JavaScript column store database",
-  "main": "src/zeldus.js",
+  "version": "0.1.0",
+  "description": "A JavaScript column oriented database",
+  "main": "./zeldus.min.js",
   "moduleType": [
     "amd"
   ],
@@ -13,14 +13,15 @@
     "Roger Noble"
   ],
   "license": "MIT",
-  "homepage": "",
-  "private": true,
+  "homepage": "http://rogernoble.github.io/zeldus",
+  "private": false,
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "data",
+    "karma_html",
   ],
   "dependencies": {
     "requirejs": "~2.1.11"

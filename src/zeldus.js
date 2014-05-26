@@ -1,5 +1,10 @@
 'use strict';
 
+/**
+ * @license Zeldus Copyright (c) 2014, Roger Noble All Rights Reserved.
+ * Licensed under MIT.
+ * See https://raw.githubusercontent.com/RogerNoble/zeldus/master/LICENSE
+ */
 define([
 	'utils/QueryParser',
 	'blocks/BasicBlock',
