@@ -74,7 +74,7 @@ select shipdate from lineitem
 						<div id="queryResults" class="marginTop"></div>
 					</div>
 					<div class="tab-pane" id="plan">
-						<span>Coming soon...</span>
+						<div id="queryExecutionPlan"></div>
 					</div>
 				</div>
 			</div>
@@ -94,7 +94,8 @@ select shipdate from lineitem
 		</div>
 		<script type="text/javascript">
 			var queryResults = document.getElementById('queryResults'),
-				queryResultsMetadata = document.getElementById('queryResultsMetadata');
+				queryResultsMetadata = document.getElementById('queryResultsMetadata'),
+				queryExecutionPlan = document.getElementById('queryExecutionPlan');
 
 			//~~ Zeldus ~~
 			var zeldus = null;
@@ -111,7 +112,7 @@ select shipdate from lineitem
 					if(sqlquery.value != null && sqlquery.value.length > 0){
 						//start timer
 						var queryStart = new Date();
-						zeldus.execute(sqlquery.value, function(results){
+						zeldus.execute(sqlquery.value, function(results, executionPlan){
 							var queryEnd = new Date();
 							var resultsTable = '';
 							var limit = results.length < 100 ? results.length : 100;
@@ -133,6 +134,7 @@ select shipdate from lineitem
 							}
 							queryResultsMetadata.innerHTML = 'Execution: ' + results.length + ' records in ' + ((queryEnd - queryStart) / 1000) + ' seconds'
 							queryResults.innerHTML = '<table class="table">' + resultsTable + '</table>';
+							queryExecutionPlan.innerHTML = JSON.stringify(executionPlan);
 						});
 					}else{
 						//log

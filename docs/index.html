@@ -89,7 +89,38 @@
 <h2 id="introduction">Introduction</h2>
 <p>Zeldus is a browser based database management system that once loaded can be queried with regular SQL syntax.</p>
 <h2 id="demo">Demo</h2>
+<p>A simple demo is <a href="http://rogernoble.github.io/zeldus">available here</a> which demonstrates some of the functionality.</p>
 <h2 id="usage">Usage</h2>
+<p>To get either:</p>
+<ul>
+<li>Clone the repo: <code>git clone https://github.com/RogerNoble/zeldus.git</code>.</li>
+<li>Install with <a href="http://bower.io">Bower</a>: <code>bower install zeldus</code>.</li>
+</ul>
+<p>To use, include a reference to either <code>zeldus.js</code> or <code>zeldus.min.js</code> on the page.<br>Create a new instance of Zeldus. Its constructor accepts a single parameter called dataSource. As Zeldus uses <a href="http://requirejs.org">requirejs</a> managing modules the <code>require</code> syntax must be used to initialise an instance.</p>
+<pre><code class="lang-javascript">require([&#39;zeldus&#39;, &#39;utils/DSLoader&#39;], function(Zeldus, DSLoader) {
+    db = new Zeldus({
+        dataSource: [ new DSLoader(&#39;lineitem&#39;, &#39;data/lineitem.json&#39;) ]
+    });
+});</code></pre>
+<p>The dataSource must be set to an Object that contains a method called <code>get</code>. The <code>get</code> method must return an array of data Objects. An simple data source loader is included at <code>/src/utils/dsloader.js</code>.<br>Once created Zeldus us ready to execute queries.</p>
+<pre><code class="lang-javascript">    zeldus.execute(sqlQuery, callback);</code></pre>
+<h2 id="build">Build</h2>
+<p>To build first make sure all the dependencies are installed. </p>
+<ul>
+<li>Install <a href="http://nodejs.org/">node.js</a></li>
+<li>From the commandline navigate to the Zeldus directory and run <code>npm install</code></li>
+</ul>
+<p>This will install <a href="http://gulpjs.com/">Gulp</a> which is used to run the build system<br>To build the source, from the command line run <code>gulp</code> this will generate two files <code>zeldus.js</code> and <code>zeldus.min.js</code>.<br>To build the documentation, from the command line run <code>gulp docs</code> this will generate the documentation in the docs folder.</p>
+<h2 id="roadmap">Roadmap</h2>
+<ul>
+<li>Aggregation operators: <code>count, sum, min, max</code></li>
+<li>Compression<ul>
+<li><a href="http://en.wikipedia.org/wiki/Run-length_encoding">Run Length Encoding</a></li>
+</ul>
+</li>
+<li>Joins</li>
+<li>Projections</li>
+</ul>
 <h2 id="reference">Reference</h2>
 <p>Zeldus is heavily based on the c-store architecture as proposed in the following papers.</p>
 <ul>
