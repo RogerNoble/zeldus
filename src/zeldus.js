@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @license Zeldus Copyright (c) 2014, Roger Noble All Rights Reserved.
+ * @license Zeldus 0.1.1 Copyright (c) 2014, Roger Noble All Rights Reserved.
  * Licensed under MIT.
  * See https://raw.githubusercontent.com/RogerNoble/zeldus/master/LICENSE
  */
