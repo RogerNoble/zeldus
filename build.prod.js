@@ -3,7 +3,7 @@
     paths: {
         requireLib: 'lib/requirejs/require'
     },
-    name: "zeldus",
+    name: "Zeldus",
     include: "requireLib",
     out:"zeldus.min.js",
     optimize: "uglify2",

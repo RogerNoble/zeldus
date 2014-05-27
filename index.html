@@ -5,7 +5,7 @@
 	    <!-- Bootstrap Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<!-- Require -->
-		<script type="text/javascript" src="src/lib/requirejs/require.js"></script>
+		<script type="text/javascript" src="zeldus.js"></script>
 
 		<style type="text/css">
 			textarea { width: 100%; height: 200px; }
@@ -63,24 +63,24 @@ select shipdate from lineitem
 				queryResultsMetadata = document.getElementById('queryResultsMetadata');
 
 			//~~ Zeldus ~~
-			var zeldus = null;
+			var db = null;
 			require.config({
 		    	baseUrl: "src"
 		  	});
 			require(['zeldus', 'utils/DSLoader'], function(Zeldus, DSLoader) {
-			    zeldus = new Zeldus({
+			    db = new Zeldus({
 			    	dataSource: [ new DSLoader('lineitem', 'data/lineitem.json') ]
 			    });
-			    zeldus.createProjection('p1_shipdate_suppkey', '(L_SHIPDATE, L_SUPPKEY, L_SHIPMODE, L_EXTENDEDPRICE | L_SHIPDATE, L_SUPPKEY)');
+			    db.createProjection('p1_shipdate_suppkey', '(L_SHIPDATE, L_SUPPKEY, L_SHIPMODE, L_EXTENDEDPRICE | L_SHIPDATE, L_SUPPKEY)');
 			});
 
 			function execute(){
-				if(zeldus != null){
+				if(db != null){
 					var sqlquery = document.getElementById('sqlquery');
 					if(sqlquery.value != null && sqlquery.value.length > 0){
 						//start timer
 						var queryStart = new Date();
-						zeldus.execute(sqlquery.value, function(results){
+						db.execute(sqlquery.value, function(results){
 							var queryEnd = new Date();
 							var resultsTable = '';
 							var limit = results.length < 100 ? results.length : 100;

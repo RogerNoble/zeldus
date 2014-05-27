@@ -36,7 +36,7 @@ define([
 		result.getJSON(function(data){
 			var queryEnd = new Date();
 			console.log('Query execution: ' + ((queryEnd - queryStart) / 1000) + ' seconds');
-			callback(data);
+			callback(data, executionPlan);
 		});
 	}
 

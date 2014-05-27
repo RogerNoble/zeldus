@@ -5,8 +5,43 @@ A client side column oriented DBMS.
 Zeldus is a browser based database management system that once loaded can be queried with regular SQL syntax.
 
 ## Demo
+A simple demo is [available here](http://rogernoble.github.io/zeldus) which demonstrates some of the functionality.
 
 ## Usage
+To get either:
+- Clone the repo: `git clone https://github.com/RogerNoble/zeldus.git`.
+- Install with [Bower](http://bower.io): `bower install zeldus`.
+
+To use, include a reference to either `zeldus.js` or `zeldus.min.js` on the page.
+Create a new instance of Zeldus. Its constructor accepts a single parameter called dataSource. As Zeldus uses [requirejs](http://requirejs.org) managing modules the `require` syntax must be used to initialise an instance.
+```javascript
+require(['zeldus', 'utils/DSLoader'], function(Zeldus, DSLoader) {
+    db = new Zeldus({
+    	dataSource: [ new DSLoader('lineitem', 'data/lineitem.json') ]
+    });
+});
+```
+The dataSource must be set to an Object that contains a method called `get`. The `get` method must return an array of data Objects. An simple data source loader is included at `/src/utils/dsloader.js`.
+Once created Zeldus us ready to execute queries.
+```javascript
+	zeldus.execute(sqlQuery, callback);
+```
+
+## Build
+To build first make sure all the dependencies are installed. 
+- Install [node.js](http://nodejs.org/)
+- From the commandline navigate to the Zeldus directory and run `npm install`
+
+This will install [Gulp](http://gulpjs.com/) which is used to run the build system
+To build the source, from the command line run `gulp` this will generate two files `zeldus.js` and `zeldus.min.js`.
+To build the documentation, from the command line run `gulp docs` this will generate the documentation in the docs folder.
+
+## Roadmap
+- Aggregation operators: `count, sum, min, max`
+- Compression
+ - [Run Length Encoding](http://en.wikipedia.org/wiki/Run-length_encoding)
+- Joins
+- Projections
 
 ## Reference
 Zeldus is heavily based on the c-store architecture as proposed in the following papers.
