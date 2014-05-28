@@ -7,6 +7,11 @@
 		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
 		<!-- Bootstrap Latest compiled and minified JavaScript -->
 		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<!-- D3 -->
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<!-- Dagre-d3 -->
+		<script src="http://cpettitt.github.io/project/graphlib/latest/graphlib.min.js"></script>
+		<script src="http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.js"></script>
 		<!-- Zeldus -->
 		<script type="text/javascript" src="javascripts/zeldus.js"></script>
 		<script type="text/javascript" src="javascripts/dsloader.js"></script>
@@ -16,6 +21,13 @@
 			.centre { text-align: center; }
 			.row { margin: 0 !important;}
 			.nav-tabs { margin-top: 10px; }
+			/*.node circle { fill: #fff; stroke: steelblue; stroke-width: 1.5px; }
+			.node { font: 10px sans-serif; }
+			.link { fill: none; stroke: #ccc; stroke-width: 1.5px; }*/
+			svg { overflow: hidden; }
+			.node rect { stroke: #333; stroke-width: 1.5px; fill: #fff; }
+			.edgeLabel rect { fill: #fff; }
+			.edgePath { stroke: #333; stroke-width: 1.5px; fill: none; }
 		</style>
 	</head>
 	<body>
@@ -74,7 +86,7 @@ select shipdate from lineitem
 						<div id="queryResults" class="marginTop"></div>
 					</div>
 					<div class="tab-pane" id="plan">
-						<div id="queryExecutionPlan"></div>
+						<svg id="executionPlan" width="650" height="680"><g transform="translate(20,20)"/></svg>
 					</div>
 				</div>
 			</div>
@@ -94,8 +106,7 @@ select shipdate from lineitem
 		</div>
 		<script type="text/javascript">
 			var queryResults = document.getElementById('queryResults'),
-				queryResultsMetadata = document.getElementById('queryResultsMetadata'),
-				queryExecutionPlan = document.getElementById('queryExecutionPlan');
+				queryResultsMetadata = document.getElementById('queryResultsMetadata');
 
 			//~~ Zeldus ~~
 			var db = null;
@@ -133,11 +144,67 @@ select shipdate from lineitem
 							}
 							queryResultsMetadata.innerHTML = 'Execution: ' + results.length + ' records in ' + ((queryEnd - queryStart) / 1000) + ' seconds'
 							queryResults.innerHTML = '<table class="table">' + resultsTable + '</table>';
-							queryExecutionPlan.innerHTML = JSON.stringify(executionPlan);
+							renderExecutionPlan(executionPlan);
 						});
 					}else{
 						//log
 					}
+				}
+			}
+
+			function renderExecutionPlan(executionPlan){
+				// Create a new directed graph
+				var g = new dagreD3.Digraph();
+				getExecutionPlanNodes(g, executionPlan);
+				getExecutionPlanEdges(g, executionPlan);
+				var renderer = new dagreD3.Renderer();
+				renderer.run(g, d3.select("#executionPlan g"));
+			}
+
+			function getExecutionPlanNodes(digraph, operator){
+				if(operator.children){
+					for(var i = 0; i < operator.children.length; i++){
+						getExecutionPlanNodes(digraph, operator.children[i])
+					}
+				}
+				if(operator.filter){
+					for(var i = 0; i < operator.filter.length; i++){
+						getExecutionPlanNodes(digraph, operator.filter[i])
+					}
+				}
+				digraph.addNode(JSON.stringify(operator), { label: operatorLabels(operator)});
+			}
+
+			function getExecutionPlanEdges(digraph, operator){
+				if(operator.children){
+					for(var i = 0; i < operator.children.length; i++){
+						if(!edgeCheck(digraph, operator.children[i], operator))
+							digraph.addEdge(null, JSON.stringify(operator.children[i]), JSON.stringify(operator));
+						if(operator.filter){
+							for(var j = 0; j < operator.filter.length; j++){
+								digraph.addEdge(null, JSON.stringify(operator.filter[j]), JSON.stringify(operator.children[i]));
+								getExecutionPlanEdges(digraph, operator.filter[j]);
+							}
+						}
+						getExecutionPlanEdges(digraph, operator.children[i]);
+					}
+				}
+			}
+
+			function edgeCheck(digraph, source, target){
+				for(var e in digraph._edges){
+					if(digraph._edges[e].u == JSON.stringify(source) && digraph._edges[e].v == JSON.stringify(target))
+						return true;
+				}
+				return false;
+			}
+
+			function operatorLabels(operator){
+				var predicateTypes = {'E': '=', 'GT': '>', 'LT': '<', 'GTE': '>=', 'LTE': '<=', 'NE': '!=' };
+				if(operator.type == 'ds'){
+					return 'data source\n[' + operator.table + '].[' + operator.column + ']' + (operator.predicate ? ' ' + predicateTypes[operator.predicate.type] + ' ' + operator.predicate.value : '');
+				}else{
+					return operator.type + ' operator';
 				}
 			}
 		</script>		
