@@ -1,23 +1,42 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	    <title>Zeldus - test</title>
+	    <title>Zeldus</title>
+	    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 	    <!-- Bootstrap Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
-		<!-- Require -->
-		<script type="text/javascript" src="zeldus.js"></script>
-
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+		<!-- Bootstrap Latest compiled and minified JavaScript -->
+		<script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<!-- D3 -->
+		<script src="http://d3js.org/d3.v3.min.js"></script>
+		<!-- Dagre-d3 -->
+		<script src="http://cpettitt.github.io/project/graphlib/latest/graphlib.min.js"></script>
+		<script src="http://cpettitt.github.io/project/dagre-d3/latest/dagre-d3.js"></script>
+		<!-- require -->
+		<script type="text/javascript" src="src/lib/requirejs/require.js"></script>
 		<style type="text/css">
 			textarea { width: 100%; height: 200px; }
 			.marginTop { margin-top: 20px; }
+			.centre { text-align: center; }
+			.row { margin: 0 !important;}
+			.nav-tabs { margin-top: 10px; }
+			/*.node circle { fill: #fff; stroke: steelblue; stroke-width: 1.5px; }
+			.node { font: 10px sans-serif; }
+			.link { fill: none; stroke: #ccc; stroke-width: 1.5px; }*/
+			svg { overflow: hidden; }
+			.node rect { stroke: #333; stroke-width: 1.5px; fill: #fff; }
+			.edgeLabel rect { fill: #fff; }
+			.edgePath { stroke: #333; stroke-width: 1.5px; fill: none; }
 		</style>
 	</head>
 	<body>
+		<a class="hidden-xs" href="https://github.com/RogerNoble/zeldus"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 		<div class="row">
 			<div class="col-md-6 col-md-offset-3">
 				<h1>Zeldus</h1>
-				<h4><em>A JavaScript column oriented database</em></h4>
-				Enter a query
+				<h4><em>A client side column oriented DBMS</em></h4>
+				<p>Zeldus is a client side database management system that once loaded can be queried with regular SQL syntax.</p>
+				<p><a href="https://github.com/RogerNoble/zeldus">View the project on GitHub</a></br><a href="docs/index.html">API documentation</a></p>
 			</div>
 		</div>
 		<div class="row">
@@ -50,37 +69,65 @@
 				</ul>
 			</div>
 			<div class="col-md-6">
+				<h5>Enter a query</h5>
 				<textarea id="sqlquery">
 select shipdate from lineitem
 				</textarea>
 				<button type="submit" class="btn btn-danger" onclick="execute()">Execute</button>
-				<div id="queryResultsMetadata" class="marginTop"></div>
-				<div id="queryResults" class="marginTop"></div>
+
+				<ul class="nav nav-tabs">
+					<li class="active"><a href="#results" data-toggle="tab" onclick="hideExecutionPlan();">Results</a></li>
+					<li><a href="#plan" data-toggle="tab" onclick="renderExecutionPlan();">Execution Plan</a></li>
+				</ul>
+				<div class="tab-content">
+					<div class="tab-pane active" id="results">
+						<div id="queryResultsMetadata" class="marginTop"></div>
+						<div id="queryResults" class="marginTop"></div>
+					</div>
+					<div class="tab-pane" id="plan">
+					</div>
+				</div>
+				<svg id="executionPlan" width="650" height="680"><g transform="translate(20,20)"/></svg>
+			</div>
+			<div class="col-md-2">
+				<h4>Avaliable keywords</h4>
+				<pre>select, from and where</pre>
+				<h4>Predicates</h4>
+				<pre>=, &gt;, &lt;, &gt;=, &lt;=, &lt;&gt; and !=</pre>
+				<h4>Coming soon</h4>
+				<pre>group by, count, sum, min, max</pre>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6 col-md-offset-3 centre">
+				<a href="https://github.com/RogerNoble/zeldus">Zeldus</a> Copyright &copy; 2014, <a href="http://www.rogernoble.com">Roger Noble</a> All Rights Reserved.
 			</div>
 		</div>
 		<script type="text/javascript">
 			var queryResults = document.getElementById('queryResults'),
-				queryResultsMetadata = document.getElementById('queryResultsMetadata');
+				queryResultsMetadata = document.getElementById('queryResultsMetadata'),
+				exp = null;
 
-			//~~ Zeldus ~~
-			var db = null;
 			require.config({
 		    	baseUrl: "src"
 		  	});
-			require(['zeldus', 'utils/DSLoader'], function(Zeldus, DSLoader) {
+			//~~ Zeldus ~~
+			var db = null;
+			require(['Zeldus', 'utils/dsloader'], function(Zeldus, DSLoader) {
 			    db = new Zeldus({
 			    	dataSource: [ new DSLoader('lineitem', 'data/lineitem.json') ]
 			    });
-			    db.createProjection('p1_shipdate_suppkey', '(L_SHIPDATE, L_SUPPKEY, L_SHIPMODE, L_EXTENDEDPRICE | L_SHIPDATE, L_SUPPKEY)');
+			    db.onDataLoaded(function(e){ });
 			});
 
 			function execute(){
 				if(db != null){
 					var sqlquery = document.getElementById('sqlquery');
 					if(sqlquery.value != null && sqlquery.value.length > 0){
+						exp = null;
 						//start timer
 						var queryStart = new Date();
-						db.execute(sqlquery.value, function(results){
+						db.execute(sqlquery.value, function(results, executionPlan){
 							var queryEnd = new Date();
 							var resultsTable = '';
 							var limit = results.length < 100 ? results.length : 100;
@@ -102,10 +149,74 @@ select shipdate from lineitem
 							}
 							queryResultsMetadata.innerHTML = 'Execution: ' + results.length + ' records in ' + ((queryEnd - queryStart) / 1000) + ' seconds'
 							queryResults.innerHTML = '<table class="table">' + resultsTable + '</table>';
+							exp = executionPlan;
 						});
 					}else{
 						//log
 					}
+				}
+			}
+
+			function renderExecutionPlan(){
+				if(exp != null){
+					// Create a new directed graph
+					var g = new dagreD3.Digraph();
+					getExecutionPlanNodes(g, exp);
+					getExecutionPlanEdges(g, exp);
+					var renderer = new dagreD3.Renderer();
+					renderer.run(g, d3.select("#executionPlan g"));
+					d3.select("#executionPlan g").attr("visibility", "visible");
+				}
+			}
+
+			function getExecutionPlanNodes(digraph, operator){
+				if(operator.children){
+					for(var i = 0; i < operator.children.length; i++){
+						getExecutionPlanNodes(digraph, operator.children[i])
+					}
+				}
+				if(operator.filter){
+					for(var i = 0; i < operator.filter.length; i++){
+						getExecutionPlanNodes(digraph, operator.filter[i])
+					}
+				}
+				digraph.addNode(JSON.stringify(operator), { label: operatorLabels(operator)});
+			}
+
+			function getExecutionPlanEdges(digraph, operator){
+				if(operator.children){
+					for(var i = 0; i < operator.children.length; i++){
+						if(!edgeCheck(digraph, operator.children[i], operator))
+							digraph.addEdge(null, JSON.stringify(operator.children[i]), JSON.stringify(operator));
+						if(operator.filter){
+							for(var j = 0; j < operator.filter.length; j++){
+								digraph.addEdge(null, JSON.stringify(operator.filter[j]), JSON.stringify(operator.children[i]));
+								getExecutionPlanEdges(digraph, operator.filter[j]);
+							}
+						}
+						getExecutionPlanEdges(digraph, operator.children[i]);
+					}
+				}
+			}
+
+			function hideExecutionPlan(){
+				d3.select("#executionPlan g").attr("visibility", "hidden");
+			}
+
+			function edgeCheck(digraph, source, target){
+				for(var e in digraph._edges){
+					if(digraph._edges[e].u == JSON.stringify(source) && digraph._edges[e].v == JSON.stringify(target))
+						return true;
+				}
+				return false;
+			}
+
+			function operatorLabels(operator){
+				var predicateTypes = {'E': '=', 'GT': '>', 'LT': '<', 'GTE': '>=', 'LTE': '<=', 'NE': '!=' };
+				if(operator.type == 'ds'){
+					return 'data source\n[' + operator.table + '].[' + operator.column + ']' + (operator.predicate ? ' ' + predicateTypes[operator.predicate.type] + ' ' + operator.predicate.value : '');
+				}else{
+					return operator.type + ' operator';
 				}
 			}
 		</script>		

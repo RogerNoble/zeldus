@@ -45,8 +45,9 @@ define([
      * @param        {Object}    options a configuration object
      */
     function Zeldus(options) {
-    	var self = this;
-    	
+    	var self = this,
+    		onLoadedCallback = null;
+
 		//setup tables
 		if(options.dataSource){
 			self.loadStart = new Date();
@@ -80,6 +81,10 @@ define([
 			runQuery(executionPlan, callback);
 		};
 
+		self.onDataLoaded = function(callback){
+			onLoadedCallback = callback;
+		}
+
 		/**
 	     * Load data into a table of columns
 	     *
@@ -102,6 +107,7 @@ define([
 			}
 			var loadEnd = new Date();
 			console.log('Data load: ' + ((loadEnd - self.loadStart) / 1000) + ' seconds');
+			onLoadedCallback();
 		}
 	}
 
