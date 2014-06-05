@@ -1,7 +1,8 @@
 var gulp = require('gulp'),
 	jshint = require('gulp-jshint'),
 	stylish = require('jshint-stylish-ex'),
-	cp = require('child_process');
+	cp = require('child_process'),
+  pkg = require('./package.json');
 
 // Lint
 gulp.task('lint', function() {
@@ -16,7 +17,7 @@ gulp.task('build-dev', function(callback) {
   cp.exec('r.js.cmd -o build.dev.js', callback);
 });
 gulp.task('build-prod', function(callback) {
-  cp.exec('r.js.cmd -o build.prod.js', callback);
+  cp.exec('r.js.cmd -o build.prod.js out=zeldus.min.js', callback);
 });
 
 // doxx documentation

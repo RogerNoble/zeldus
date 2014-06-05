@@ -27,13 +27,14 @@
 			.node rect { stroke: #333; stroke-width: 1.5px; fill: #fff; }
 			.edgeLabel rect { fill: #fff; }
 			.edgePath { stroke: #333; stroke-width: 1.5px; fill: none; }
+			#queryEditor { display: none; }
 		</style>
 	</head>
 	<body>
 		<a class="hidden-xs" href="https://github.com/RogerNoble/zeldus"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"></a>
 		<div class="row">
 			<div class="col-md-6 col-md-offset-3">
-				<h1>Zeldus</h1>
+				<img src="http://rogernoble.github.io/zeldus/images/zeldus.png" alt="zeldus" />
 				<h4><em>A client side column oriented DBMS</em></h4>
 				<p>Zeldus is a client side database management system that once loaded can be queried with regular SQL syntax.</p>
 				<p><a href="https://github.com/RogerNoble/zeldus">View the project on GitHub</a></br><a href="docs/index.html">API documentation</a></p>
@@ -69,25 +70,28 @@
 				</ul>
 			</div>
 			<div class="col-md-6">
-				<h5>Enter a query</h5>
-				<textarea id="sqlquery">
-select shipdate from lineitem
-				</textarea>
-				<button type="submit" class="btn btn-danger" onclick="execute()">Execute</button>
+				<h5>Loading...</h5>
+				<div id="queryEditor">
+					<h5>Enter a query</h5>
+					<textarea id="sqlquery">
+	select shipdate from lineitem
+					</textarea>
+					<button type="submit" class="btn btn-danger" onclick="execute()">Execute</button>
 
-				<ul class="nav nav-tabs">
-					<li class="active"><a href="#results" data-toggle="tab" onclick="hideExecutionPlan();">Results</a></li>
-					<li><a href="#plan" data-toggle="tab" onclick="renderExecutionPlan();">Execution Plan</a></li>
-				</ul>
-				<div class="tab-content">
-					<div class="tab-pane active" id="results">
-						<div id="queryResultsMetadata" class="marginTop"></div>
-						<div id="queryResults" class="marginTop"></div>
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#results" data-toggle="tab" onclick="hideExecutionPlan();">Results</a></li>
+						<li><a href="#plan" data-toggle="tab" onclick="renderExecutionPlan();">Execution Plan</a></li>
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane active" id="results">
+							<div id="queryResultsMetadata" class="marginTop"></div>
+							<div id="queryResults" class="marginTop"></div>
+						</div>
+						<div class="tab-pane" id="plan">
+						</div>
 					</div>
-					<div class="tab-pane" id="plan">
-					</div>
+					<svg id="executionPlan" width="650" height="680"><g transform="translate(20,20)"/></svg>
 				</div>
-				<svg id="executionPlan" width="650" height="680"><g transform="translate(20,20)"/></svg>
 			</div>
 			<div class="col-md-2">
 				<h4>Avaliable keywords</h4>
@@ -106,6 +110,7 @@ select shipdate from lineitem
 		<script type="text/javascript">
 			var queryResults = document.getElementById('queryResults'),
 				queryResultsMetadata = document.getElementById('queryResultsMetadata'),
+				queryEditor = document.getElementById('queryEditor'),
 				exp = null;
 
 			require.config({
@@ -117,7 +122,7 @@ select shipdate from lineitem
 			    db = new Zeldus({
 			    	dataSource: [ new DSLoader('lineitem', 'data/lineitem.json') ]
 			    });
-			    db.onDataLoaded(function(e){ });
+			    db.onDataLoaded(function(e){ queryEditor.style.display = 'block'; });
 			});
 
 			function execute(){

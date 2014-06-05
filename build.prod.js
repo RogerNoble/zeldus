@@ -1,12 +1,12 @@
 ({
     baseUrl: 'src/',
-    paths: {
-        requireLib: 'lib/requirejs/require'
-    },
-    name: "Zeldus",
-    include: "requireLib",
-    out:"zeldus.min.js",
+    name: "lib/almond/almond",
+    include: ['Zeldus'],
     optimize: "uglify2",
     preserveLicenseComments: true,
-    generateSourceMaps: false
+    generateSourceMaps: false,
+    wrap: {
+        startFile: './build/build-wrap-start.js',
+        endFile: './build/build-wrap-end.js'
+    }
 })

@@ -24,7 +24,8 @@
     "karma_html"
   ],
   "dependencies": {
-    "requirejs": "~2.1.11"
+    "requirejs": "~2.1.11",
+    "almond": "~0.2.9"
   },
   "devDependencies": {
     "chai": "~1.9.1"

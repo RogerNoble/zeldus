@@ -1,8 +1,8 @@
-# Zeldus
+#![Zeldus](http://rogernoble.github.io/zeldus/images/zeldus.png)
 A client side column oriented DBMS.
 
 ## Introduction
-Zeldus is a browser based database management system that once loaded can be queried with regular SQL syntax.
+Zeldus is a browser based database management system that allows for data to be loaded and queried with regular SQL syntax.
 
 ## Demo
 A simple demo is [available here](http://rogernoble.github.io/zeldus) which demonstrates some of the functionality.
@@ -13,12 +13,10 @@ To get either:
 - Install with [Bower](http://bower.io): `bower install zeldus`.
 
 To use, include a reference to either `zeldus.js` or `zeldus.min.js` on the page.
-Create a new instance of Zeldus. Its constructor accepts a single parameter called dataSource. As Zeldus uses [requirejs](http://requirejs.org) managing modules the `require` syntax must be used to initialise an instance.
+Create a new instance of Zeldus. Its constructor accepts a single parameter called dataSource. 
 ```javascript
-require(['zeldus', 'utils/DSLoader'], function(Zeldus, DSLoader) {
-    db = new Zeldus({
-    	dataSource: [ new DSLoader('lineitem', 'data/lineitem.json') ]
-    });
+db = new Zeldus({
+	dataSource: [ new DSLoader('lineitem', 'data/lineitem.json') ]
 });
 ```
 The dataSource must be set to an Object that contains a method called `get`. The `get` method must return an array of data Objects. An simple data source loader is included at `/src/utils/dsloader.js`.

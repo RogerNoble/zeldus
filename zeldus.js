@@ -1,5 +1,5 @@
 /** vim: et:ts=4:sw=4:sts=4
- * @license RequireJS 2.1.12 Copyright (c) 2010-2014, The Dojo Foundation All Rights Reserved.
+ * @license RequireJS 2.1.14 Copyright (c) 2010-2014, The Dojo Foundation All Rights Reserved.
  * Available via the MIT or new BSD license.
  * see: http://github.com/jrburke/requirejs for details
  */
@@ -12,7 +12,7 @@ var requirejs, require, define;
 (function (global) {
     var req, s, head, baseElement, dataMain, src,
         interactiveScript, currentlyAddingScript, mainScript, subPath,
-        version = '2.1.12',
+        version = '2.1.14',
         commentRegExp = /(\/\*([\s\S]*?)\*\/|([^:]|^)\/\/(.*)$)/mg,
         cjsRequireRegExp = /[^.]\s*require\s*\(\s*["']([^'"\s]+)["']\s*\)/g,
         jsSuffixRegExp = /\.js$/,
@@ -244,12 +244,7 @@ var requirejs, require, define;
                     // still work when converted to a path, even though
                     // as an ID it is less than ideal. In larger point
                     // releases, may be better to just kick out an error.
-                    // Also, want to keep IDs that start with 'a/../', so
-                    // that the 'a' part can be used for ID-to-path mapping
-                    // configs like paths/packages config. This is done
-                    // for legacy code expectations, since previous approach
-                    // in this method used that logic.
-                    if (i < 2 || ary[i - 1] === '..') {
+                    if (i === 0 || (i == 1 && ary[2] === '..') || ary[i - 1] === '..') {
                         continue;
                     } else if (i > 0) {
                         ary.splice(i - 1, 2);
@@ -449,7 +444,16 @@ var requirejs, require, define;
                             return normalize(name, parentName, applyMap);
                         });
                     } else {
-                        normalizedName = normalize(name, parentName, applyMap);
+                        // If nested plugin references, then do not try to
+                        // normalize, as it will not normalize correctly. This
+                        // places a restriction on resourceIds, and the longer
+                        // term solution is not to normalize until plugins are
+                        // loaded and all normalizations to allow for async
+                        // loading of a loader plugin. But for now, fixes the
+                        // common uses. Details in #1131
+                        normalizedName = name.indexOf('!') === -1 ?
+                                         normalize(name, parentName, applyMap) :
+                                         name;
                     }
                 } else {
                     //A regular module.
@@ -2975,8 +2979,9 @@ define('Zeldus',[
      * @param        {Object}    options a configuration object
      */
     function Zeldus(options) {
-    	var self = this;
-    	
+    	var self = this,
+    		onLoadedCallback = null;
+
 		//setup tables
 		if(options.dataSource){
 			self.loadStart = new Date();
@@ -3010,6 +3015,12 @@ define('Zeldus',[
 			runQuery(executionPlan, callback);
 		};
 
+		self.onDataLoaded = function(callback){
+			onLoadedCallback = callback;
+		}
+
+		self.version = '0.1.2';
+
 		/**
 	     * Load data into a table of columns
 	     *
@@ -3032,6 +3043,7 @@ define('Zeldus',[
 			}
 			var loadEnd = new Date();
 			console.log('Data load: ' + ((loadEnd - self.loadStart) / 1000) + ' seconds');
+			onLoadedCallback();
 		}
 	}
 
