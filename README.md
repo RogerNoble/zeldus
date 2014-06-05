@@ -34,6 +34,9 @@ This will install [Gulp](http://gulpjs.com/) which is used to run the build syst
 To build the source, from the command line run `gulp` this will generate two files `zeldus.js` and `zeldus.min.js`.
 To build the documentation, from the command line run `gulp docs` this will generate the documentation in the docs folder.
 
+## API Documentation
+Full [API Documentation](http://rogernoble.github.io/zeldus/docs/index.html) avaliable.
+
 ## Roadmap
 - Aggregation operators: `count, sum, min, max`
 - Compression
