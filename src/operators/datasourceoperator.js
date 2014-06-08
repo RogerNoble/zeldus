@@ -1,4 +1,4 @@
-'user strict';
+'use strict';
 
 define(['operators/Operator', 'operators/Predicate'], function(Operator, Predicate) {
 

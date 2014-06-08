@@ -27,7 +27,17 @@
 			.node rect { stroke: #333; stroke-width: 1.5px; fill: #fff; }
 			.edgeLabel rect { fill: #fff; }
 			.edgePath { stroke: #333; stroke-width: 1.5px; fill: none; }
+			.fade-in {
+				animation: fadein 2s;
+			    -moz-animation: fadein 2s; /* Firefox */
+			    -webkit-animation: fadein 2s; /* Safari and Chrome */
+			    -o-animation: fadein 2s; /* Opera */
+			}
 			#queryEditor { display: none; }
+			@keyframes fadein { from { opacity:0; } to { opacity:1; } }
+			@-moz-keyframes fadein { from { opacity:0; } to { opacity:1; } }
+			@-webkit-keyframes fadein { from { opacity:0; } to { opacity:1; } }
+			@-o-keyframes fadein { from { opacity:0; } to { opacity: 1; } }
 		</style>
 	</head>
 	<body>
@@ -70,7 +80,7 @@
 				</ul>
 			</div>
 			<div class="col-md-6">
-				<h5>Loading...</h5>
+				<div id="queryEditorLoading"><img src="images/loader.gif" alt="loading..." /></div>
 				<div id="queryEditor">
 					<h5>Enter a query</h5>
 					<textarea id="sqlquery">
@@ -111,6 +121,8 @@
 			var queryResults = document.getElementById('queryResults'),
 				queryResultsMetadata = document.getElementById('queryResultsMetadata'),
 				queryEditor = document.getElementById('queryEditor'),
+				queryEditorLoading = document.getElementById('queryEditorLoading'),
+				executionPlanVisible = false,
 				exp = null;
 
 			require.config({
@@ -122,7 +134,11 @@
 			    db = new Zeldus({
 			    	dataSource: [ new DSLoader('lineitem', 'data/lineitem.json') ]
 			    });
-			    db.onDataLoaded(function(e){ queryEditor.style.display = 'block'; });
+			    db.onDataLoaded(function(e){ 
+			    	queryEditor.style.display = 'block'; 
+			    	queryEditor.className = 'fade-in';
+			    	queryEditorLoading.style.display = 'none'; 
+			    });
 			});
 
 			function execute(){
@@ -155,6 +171,8 @@
 							queryResultsMetadata.innerHTML = 'Execution: ' + results.length + ' records in ' + ((queryEnd - queryStart) / 1000) + ' seconds'
 							queryResults.innerHTML = '<table class="table">' + resultsTable + '</table>';
 							exp = executionPlan;
+							if(executionPlanVisible)
+								renderExecutionPlan();
 						});
 					}else{
 						//log
@@ -172,6 +190,7 @@
 					renderer.run(g, d3.select("#executionPlan g"));
 					d3.select("#executionPlan g").attr("visibility", "visible");
 				}
+				executionPlanVisible = true;
 			}
 
 			function getExecutionPlanNodes(digraph, operator){
@@ -206,6 +225,7 @@
 
 			function hideExecutionPlan(){
 				d3.select("#executionPlan g").attr("visibility", "hidden");
+				executionPlanVisible = true;
 			}
 
 			function edgeCheck(digraph, source, target){

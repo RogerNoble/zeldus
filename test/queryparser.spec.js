@@ -28,7 +28,11 @@ define(['utils/QueryParser', 'chai'], function( QueryParser, chai ) {
 			it('should be of type select with one child data source and a GT predicate', function() {
 				var parser = new QueryParser(),
 					query = 'select shipdate from lineitem where shipdate > 20140518',
-					expected = { type: 'select', filter: [], children: [{ type: 'ds', table: 'lineitem', column: 'shipdate', predicate: { value: 20140518, type: 'GT' }}]};
+					expected = { 
+						type: 'select', 
+						filter: [], 
+						children: [{ type: 'ds', table: 'lineitem', column: 'shipdate', predicate: { value: 20140518, type: 'GT' }}]
+					};
 
 				var plan = parser.parse(query);
 				expect(plan).to.deep.equal(expected);
@@ -75,10 +79,64 @@ define(['utils/QueryParser', 'chai'], function( QueryParser, chai ) {
 				expect(plan).to.deep.equal(expected);
 			});
 
-			it('should parse seelct with "count" in column name', function() {
+			it('should parse select with "count" in column name', function() {
 				var parser = new QueryParser(),
 					query = 'select discount from lineitem',
 					expected = { type: 'select', filter: [], children: [{ type: 'ds', table: 'lineitem', column: 'discount'}]};
+
+				var plan = parser.parse(query);
+				expect(plan).to.deep.equal(expected);
+			});
+
+			it('should be of type aggregate with single count', function() {
+				var parser = new QueryParser(),
+					query = 'select linenumber, shipmode, count(linenumber) from lineitem where supplierkey = 777 and shipdate > 20140518',
+					expected = { 
+						type: 'aggregate', 
+						filter: [{ type: 'and', children: [
+							{ type: 'ds', table: 'lineitem', column: 'supplierkey', predicate: { value: 777, type: 'E' }},
+							{ type: 'ds', table: 'lineitem', column: 'shipdate', predicate: { value: 20140518, type: 'GT' }}
+						]}], 
+						children: [
+							{ type: 'ds', table: 'lineitem', column: 'linenumber'},
+							{ type: 'ds', table: 'lineitem', column: 'shipmode'}
+						],
+						groupBy: [
+							{table: 'lineitem', column: 'linenumber'}, 
+							{table: 'lineitem', column: 'shipmode'}
+						],
+						functions: [
+							{type: 'count', table: 'lineitem', column: 'linenumber'}
+						]
+					};
+
+				var plan = parser.parse(query);
+				expect(plan).to.deep.equal(expected);
+			});
+
+			it('should be of type aggregate with single count', function() {
+				var parser = new QueryParser(),
+					query = 'select linenumber, shipmode, count(linenumber), sum(orderkey) from lineitem where supplierkey = 777 and shipdate > 20140518',
+					expected = { 
+						type: 'aggregate', 
+						filter: [{ type: 'and', children: [
+							{ type: 'ds', table: 'lineitem', column: 'supplierkey', predicate: { value: 777, type: 'E' }},
+							{ type: 'ds', table: 'lineitem', column: 'shipdate', predicate: { value: 20140518, type: 'GT' }}
+						]}], 
+						children: [
+							{ type: 'ds', table: 'lineitem', column: 'linenumber'},
+							{ type: 'ds', table: 'lineitem', column: 'shipmode'},
+							{ type: 'ds', table: 'lineitem', column: 'orderkey'}
+						],
+						groupBy: [
+							{table: 'lineitem', column: 'linenumber'}, 
+							{table: 'lineitem', column: 'shipmode'}
+						],
+						functions: [
+							{type: 'count', table: 'lineitem', column: 'linenumber'},
+							{type: 'sum', table: 'lineitem', column: 'orderkey'}
+						]
+					};
 
 				var plan = parser.parse(query);
 				expect(plan).to.deep.equal(expected);

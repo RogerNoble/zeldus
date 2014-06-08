@@ -1,4 +1,4 @@
-'user strict';
+'use strict';
 
 define(['operators/Operator', 'blocks/BasicBlock'], function(Operator, BasicBlock) {
 

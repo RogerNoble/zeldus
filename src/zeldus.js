@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * @license Zeldus 0.1.1 Copyright (c) 2014, Roger Noble All Rights Reserved.
+ * @license Zeldus 0.1.2 Copyright (c) 2014, Roger Noble All Rights Reserved.
  * Licensed under MIT.
  * See https://raw.githubusercontent.com/RogerNoble/zeldus/master/LICENSE
  */
@@ -81,10 +81,18 @@ define([
 			runQuery(executionPlan, callback);
 		};
 
+		/**
+	     * Event triggered when data source fully loaded
+	     *
+	     * @param {Object} callback a callback function
+	     */
 		self.onDataLoaded = function(callback){
 			onLoadedCallback = callback;
 		}
 
+		/**
+	     * Current version
+	     */
 		self.version = '0.1.2';
 
 		/**
