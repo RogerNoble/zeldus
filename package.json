@@ -1,6 +1,6 @@
 {
   "name": "Zeldus",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "dependencies": {
     "connect": "^2.15.0"
