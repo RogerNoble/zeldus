@@ -185,7 +185,7 @@
 					getExecutionPlanNodes(g, exp);
 					getExecutionPlanEdges(g, exp);
 					var renderer = new dagreD3.render();
-					renderer(g, d3.select("#executionPlan g"));
+					renderer(d3.select("#executionPlan g"), g);
 					d3.select("#executionPlan g").attr("visibility", "visible");
 				}
 				executionPlanVisible = true;
