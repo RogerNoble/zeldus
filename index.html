@@ -165,11 +165,13 @@
 			function renderExecutionPlan(){
 				if(exp != null){
 					// Create a new directed graph
-					var g = new dagreD3.Digraph();
+					var g = new dagreD3.graphlib.Graph()
+						.setGraph({})
+  						.setDefaultEdgeLabel(function() { return {}; });
 					getExecutionPlanNodes(g, exp);
 					getExecutionPlanEdges(g, exp);
-					var renderer = new dagreD3.Renderer();
-					renderer.run(g, d3.select("#executionPlan g"));
+					var renderer = new dagreD3.render();
+					renderer(d3.select("#executionPlan g"), g);
 					d3.select("#executionPlan g").attr("visibility", "visible");
 				}
 			}
@@ -185,17 +187,17 @@
 						getExecutionPlanNodes(digraph, operator.filter[i])
 					}
 				}
-				digraph.addNode(JSON.stringify(operator), { label: operatorLabels(operator)});
+				digraph.setNode(JSON.stringify(operator), { label: operatorLabels(operator)});
 			}
 
 			function getExecutionPlanEdges(digraph, operator){
 				if(operator.children){
 					for(var i = 0; i < operator.children.length; i++){
 						if(!edgeCheck(digraph, operator.children[i], operator))
-							digraph.addEdge(null, JSON.stringify(operator.children[i]), JSON.stringify(operator));
+							digraph.setEdge(JSON.stringify(operator.children[i]), JSON.stringify(operator));
 						if(operator.filter){
 							for(var j = 0; j < operator.filter.length; j++){
-								digraph.addEdge(null, JSON.stringify(operator.filter[j]), JSON.stringify(operator.children[i]));
+								digraph.setEdge(JSON.stringify(operator.filter[j]), JSON.stringify(operator.children[i]));
 								getExecutionPlanEdges(digraph, operator.filter[j]);
 							}
 						}
